@@ -9,7 +9,7 @@ def get_long_description():
     except:
         return ""
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 
 setup(
     name='relatime',
@@ -23,7 +23,7 @@ setup(
     url='https://github.com/mcm/relatime',
     description='Python parser for a simple relative time syntax',
     long_description=get_long_description(),
-    install_requires=["pytz"],
+    install_requires=["pytz", "python-dateutil"],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',

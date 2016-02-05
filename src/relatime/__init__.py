@@ -7,6 +7,8 @@ import re
 import math
 import pytz
 
+from dateutil.relativedelta import relativedelta
+
 
 def timeParser(ts='now', timezone="UTC", now=None, utcnow=None):
     if ts == 'now':
@@ -110,7 +112,7 @@ def timeParserTimeMath(plusminus, num, unit, ret):
         elif unit in ('w', 'week', 'weeks'):
             td = datetime.timedelta(days=(int(num) * 7))
         elif re.match('w[0-6]', unit) is not None:
-            return False
+            return ret
         # Normalize out all year/quarter/months to months and do the math on that
         elif unit in ('mon', 'month', 'months') or \
             unit in ('q', 'qtr', 'qtrs', 'quarter', 'quarters') or \
@@ -122,28 +124,12 @@ def timeParserTimeMath(plusminus, num, unit, ret):
 
             plusminusmod = -1 if plusminus == "-" else 1
             monthnum = int(num) * plusminusmod
-            if abs(monthnum) / 12 > 0:
-                yearnum = int(math.floor(abs(monthnum) / 12)) * plusminusmod
-                monthnum = int((abs(monthnum) % 12)) * plusminusmod
-                ret = datetime.datetime(ret.year + yearnum, ret.month + monthnum, ret.day, ret.hour,
-                                        ret.minute, ret.second, ret.microsecond)
-            elif monthnum > 0:
-                if ret.month + monthnum > 12:
-                    ret = datetime.datetime(ret.year + 1, ((ret.month + monthnum) % 12),
-                                            ret.day, ret.hour, ret.minute, ret.second, ret.microsecond)
-                else:
-                    ret = datetime.datetime(ret.year, ret.month + monthnum, ret.day,
-                                            ret.hour, ret.minute, ret.second, ret.microsecond)
-            elif monthnum <= 0:
-                if ret.month + monthnum <= 0:
-                    ret = datetime.datetime(ret.year - 1, (12 - abs(ret.month + monthnum)),
-                                            ret.day, ret.hour, ret.minute, ret.second, ret.microsecond)
-                else:
-                    ret = datetime.datetime(ret.year, ret.month + monthnum, ret.day,
-                                            ret.hour, ret.minute, ret.second, ret.microsecond)
+
+            # td = datetime.timedelta(months=monthnum)
+            ret = ret + relativedelta(months=monthnum)
 
     except ValueError:
-        return False
+        raise
 
     if td is not None:
         if plusminus == '-':
